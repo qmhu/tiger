@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Component-Version: N/A
+Build-Jdk: 1.7.0_51
+Built-By: I311862
+Created-By: Apache Maven 3.0.5
+
