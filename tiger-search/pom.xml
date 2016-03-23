@@ -59,7 +59,25 @@
 		    <artifactId>commons-lang</artifactId>
 		    <version>2.6</version>
 		</dependency>
-		
+
+		<!-- MongoDB -->
+		<dependency>
+			<groupId>org.mongodb</groupId>
+			<artifactId>mongo-java-driver</artifactId>
+			<version>3.0.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mongodb</groupId>
+			<artifactId>mongodb-driver</artifactId>
+			<version>3.0.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-mongodb</artifactId>
+			<version>1.8.4.RELEASE</version>
+		</dependency>
+
+
 		<!-- JSON Parser -->
 		<dependency>
 		    <groupId>com.googlecode.json-simple</groupId>
