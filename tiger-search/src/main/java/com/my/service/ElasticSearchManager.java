@@ -106,8 +106,7 @@ public class ElasticSearchManager {
                 "		      \"date_histogram\": { \n" +
                 "		        \"field\": \"@timestamp\", \n" +
                 "		        \"interval\": \"30s\", \n" +
-                "		        \"pre_zone\": \"+08:00\", \n" +
-                "		        \"pre_zone_adjust_large_interval\": true, \n" +
+                "		        \"time_zone\": \"Asia/Shanghai\", \n" +
                 "		        \"min_doc_count\": 0, \n" +
                 "		        \"extended_bounds\": { \n" +
                 "		          \"min\": 1458034017425, \n" +
@@ -127,10 +126,79 @@ public class ElasticSearchManager {
                 "        } \n" +
                 "    },\n" +*/
                 "	  \"fielddata_fields\": [ \n" +
-                "	    \"@timestamp\", \n" +
-                "	    \"datetime\", \n" +
-                "	    \"context.@timestamp\", \n" +
-                "	    \"context.datetime\" \n" +
+                "	    \"@timestamp\" \n" +
+                "	  ] \n" +
+                "	}";
+
+        return query;
+    }
+
+    public String buildEshopQueryScollString(String sort,String queryString, String starttime, String endtime){
+        String query = "{\n" +
+                "	  \"sort\": {\n" +
+                "	    \"@timestamp\": \"desc\" \n" +
+                "	  },\n" +
+                "	  \"query\": {\n" +
+                "	    \"filtered\": { \n" +
+                "	      \"query\": { \n" +
+                "	        \"query_string\": { \n" +
+                "	          \"query\": \" "+ queryString + "\" ,\n" +
+                "	          \"analyze_wildcard\": true \n" +
+                "	        } \n" +
+                "	      }, \n" +
+                "	      \"filter\": { \n" +
+                "	        \"bool\": { \n" +
+                "	          \"must\": [ \n" +
+                "                {\n" +
+                "                    \"query\": { \n" +
+                "                       \"match\": {\n" +
+                "                           \"type\": {\n" +
+                "                               \"query\": \"proxy\",\n" +
+                "                               \"type\": \"phrase\" \n" +
+                "                            \n}" +
+                "                           \n}" +
+                "                       \n}" +
+                "                },\n" +
+                "	            { \n" +
+                "	              \"range\": { \n" +
+                "	                \"@timestamp\": { \n" +
+                "	                  \"gte\": " + starttime + ", \n" +
+                "	                  \"lte\": " + endtime + " \n" +
+                "	                } \n" +
+                "	              } \n" +
+                "	            } \n" +
+                "	          ], \n" +
+                "	          \"must_not\": [] \n" +
+                "	        } \n" +
+                "	      } \n" +
+                "	    } \n" +
+                "	  }, \n" +
+                "		\"aggs\": { \n" +
+                "		    \"2\": { \n" +
+                "		      \"date_histogram\": { \n" +
+                "		        \"field\": \"@timestamp\", \n" +
+                "		        \"interval\": \"30s\", \n" +
+                "		        \"time_zone\": \"Asia/Shanghai\", \n" +
+                "		        \"min_doc_count\": 0, \n" +
+                "		        \"extended_bounds\": { \n" +
+                "		          \"min\": 1458034017425, \n" +
+                "		          \"max\": 1458034917425 \n" +
+                "		        }\n" +
+                "		      }\n" +
+                "		    }\n" +
+                "		  },\n" +
+                "	  \"fields\": [ \n" +
+                "	    \"*\", \n" +
+                "	    \"_source\" \n" +
+                "	  ], \n" +
+/*                "    \"script_fields\": { \n" +
+                "        \"duration_number\": { \n" +
+                "            \"script\": \"doc['ReqTime'].value==null?(doc['duration'].value==null?0:Integer.parseInt(doc['duration'].value)):Math.round((int)(100000*Float.parseFloat(doc['ReqTime'].value))/100)\",\n" +
+                "                    \"lang\": \"groovy\" \n" +
+                "        } \n" +
+                "    },\n" +*/
+                "	  \"fielddata_fields\": [ \n" +
+                "	    \"@timestamp\" \n" +
                 "	  ] \n" +
                 "	}";
 

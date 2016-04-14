@@ -43,7 +43,9 @@ public class EshopAccess {
 
     private String contentPath;
 
-    private String status;
+    private String contentUri;
+
+    private int status;
 
     private double responseTime;
 
@@ -72,9 +74,24 @@ public class EshopAccess {
         userAgent = access.getUserAgent();
         schema = access.getSchema();
         requestMethod = access.getRequestMethod();
-        contentPath = access.getRequestUri();
+        contentUri = access.getRequestUri() == null ? "" : access.getRequestUri();
+        try{
+            if (contentUri.contains("?")) {
+                contentPath = contentUri.substring(0,contentUri.indexOf("?"));
+            }else {
+                contentPath = contentUri;
+            }
+        } catch (Exception ex){
+
+        }
+
+
         requestUri = httpHost + contentPath;
-        status = access.getStatus();
+        try {
+            status = Integer.valueOf(access.getStatus());
+        } catch (Exception ex){
+
+        }
         try {
             responseTime = Double.valueOf(access.getUpstreamResponseTime()) * 1000;
         } catch (Exception ex){
@@ -197,11 +214,11 @@ public class EshopAccess {
         this.requestUri = requestUri;
     }
 
-    public String getStatus() {
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(int status) {
         status = status;
     }
 
@@ -259,5 +276,39 @@ public class EshopAccess {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public String getContentUri() {
+        return contentUri;
+    }
+
+    public void setContentUri(String contentUri) {
+        this.contentUri = contentUri;
+    }
+
+    @Override
+    public String toString() {
+        return "EshopAccess{" +
+                "id='" + id + '\'' +
+                ", message='" + message + '\'' +
+                ", version='" + version + '\'' +
+                ", removeAddr='" + removeAddr + '\'' +
+                ", httpHost='" + httpHost + '\'' +
+                ", bodySize=" + bodySize +
+                ", userAgent='" + userAgent + '\'' +
+                ", schema='" + schema + '\'' +
+                ", requestMethod='" + requestMethod + '\'' +
+                ", serverProtocol='" + serverProtocol + '\'' +
+                ", contentPath='" + contentPath + '\'' +
+                ", contentUri='" + contentUri + '\'' +
+                ", status='" + status + '\'' +
+                ", responseTime=" + responseTime +
+                ", time=" + time +
+                ", landscape='" + landscape + '\'' +
+                ", device='" + device + '\'' +
+                ", requestUri='" + requestUri + '\'' +
+                ", requestType='" + requestType + '\'' +
+                ", createTime=" + createTime +
+                '}';
     }
 }

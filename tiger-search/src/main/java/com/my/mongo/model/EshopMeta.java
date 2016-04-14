@@ -14,6 +14,8 @@ public class EshopMeta {
 
     private String contentPath;
 
+    private String landscape;
+
     public String getContentPath() {
         return contentPath;
     }
@@ -28,5 +30,13 @@ public class EshopMeta {
 
     public void setDomain(String domain) {
         this.domain = domain;
+    }
+
+    public String getLandscape() {
+        return landscape;
+    }
+
+    public void setLandscape(String landscape) {
+        this.landscape = landscape;
     }
 }

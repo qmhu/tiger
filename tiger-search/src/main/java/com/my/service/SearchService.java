@@ -3,15 +3,15 @@
  */
 package com.my.service;
 
-import com.mongodb.AggregationOutput;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 import com.mongodb.WriteResult;
 import com.my.elasticsearch.model.Access;
 import com.my.exception.BusinessException;
 
-import com.my.mongo.model.EshopMeta;
 import com.my.mongo.model.EshopAccess;
+import io.searchbox.client.JestResult;
+import io.searchbox.core.SearchScroll;
+import io.searchbox.params.Parameters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,8 +24,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
-import static java.util.Arrays.asList;
-
 /**
  * @author I311862
  */
@@ -34,87 +32,67 @@ public class SearchService {
 
 	@Autowired
 	private ElasticSearchManager elasticSearchManager;
-	private List<String> notIncludeDomain;
+	private List<String> notIncludeDomainCN;
+	private List<String> notIncludeDomainUS;
+	private List<String> notIncludeDomainEU;
 
 	@Autowired
 	private MongoDBClient mongoDBClient;
 
 
 	public SearchService() throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
-		notIncludeDomain = new ArrayList<String>();
-		/*notIncludeDomain.add("channel.sapanywhere.cn");
-		notIncludeDomain.add("eap-occ-us.sapanywhere.com");
-		notIncludeDomain.add("accounts-eu.sapanywhere.com");
-		notIncludeDomain.add("mp-eu.sapanywhere.com");
-		notIncludeDomain.add("eap-idp-us.sapanywhere.com");
-		notIncludeDomain.add("occ1.sapanywhere.sap.corp:443");
-		notIncludeDomain.add("api-us.sapanywhere.com");
-		notIncludeDomain.add("idp.sapanywhere.sap.corp:443");
-		notIncludeDomain.add("eap-us.sapanywhere.com");
-		notIncludeDomain.add("my-eu.sapanywhere.com");
-		notIncludeDomain.add("dev-us.sapanywhere.com");
-		notIncludeDomain.add("app1-eu.sapanywhere.com");
-		notIncludeDomain.add("accounts-eu.sapanywhere.com");*/
-		notIncludeDomain.add("csm.sapanywhere.sap.corp");
-		notIncludeDomain.add("accounts.sapanywhere.cn");
-		notIncludeDomain.add("app1.sapanywhere.cn");
-		notIncludeDomain.add("wechat.sapanywhere.cn");
-		notIncludeDomain.add("api.sapanywhere.cn");
-		notIncludeDomain.add("app1.sapanywhere.sap.corp");
-		notIncludeDomain.add("mp.sapanywhere.cn");
-		notIncludeDomain.add("dev.sapanywhere.cn");
-		notIncludeDomain.add("my.sapanywhere.cn");
-		notIncludeDomain.add("bss.sapanywhere.cn");
-		notIncludeDomain.add("eap-occ-cn.sapanywhere.cn");
-		notIncludeDomain.add("idp.sapanywhere.sap.corp:443");
-		notIncludeDomain.add("channel.sapanywhere.cn");
-		notIncludeDomain.add("eap-cn.sapanywhere.cn");
-		notIncludeDomain.add("static.sapanywhere.cn");
+		notIncludeDomainCN = new ArrayList<String>();
+		notIncludeDomainCN.add("csm.sapanywhere.sap.corp");
+		notIncludeDomainCN.add("accounts.sapanywhere.cn");
+		notIncludeDomainCN.add("app1.sapanywhere.cn");
+		notIncludeDomainCN.add("wechat.sapanywhere.cn");
+		notIncludeDomainCN.add("api.sapanywhere.cn");
+		notIncludeDomainCN.add("app1.sapanywhere.sap.corp");
+		notIncludeDomainCN.add("mp.sapanywhere.cn");
+		notIncludeDomainCN.add("dev.sapanywhere.cn");
+		notIncludeDomainCN.add("my.sapanywhere.cn");
+		notIncludeDomainCN.add("bss.sapanywhere.cn");
+		notIncludeDomainCN.add("eap-occ-cn.sapanywhere.cn");
+		notIncludeDomainCN.add("idp.sapanywhere.sap.corp:443");
+		notIncludeDomainCN.add("channel.sapanywhere.cn");
+		notIncludeDomainCN.add("eap-cn.sapanywhere.cn");
+		notIncludeDomainCN.add("static.sapanywhere.cn");
+		notIncludeDomainCN.add("idp.sapanywhere.sap.corp");
+
+		notIncludeDomainUS = new ArrayList<String>();
+		notIncludeDomainUS.add("bss-us.sapanywhere.com");
+		notIncludeDomainUS.add("bss-us.sapanywhere.sap.corp");
+		notIncludeDomainUS.add("doc-us.sapanywhere.com");
+		notIncludeDomainUS.add("doc-us.sapanywhere.sap.corp");
+		notIncludeDomainUS.add("occ1.sapanywhere.com");
+		notIncludeDomainUS.add("occ1.sapanywhere.sap.corp");
+		notIncludeDomainUS.add("idp.sapanywhere.com");
+		notIncludeDomainUS.add("idp.sapanywhere.sap.corp");
+		notIncludeDomainUS.add("csm.sapanywhere.com");
+		notIncludeDomainUS.add("csm.sapanywhere.sap.corp");
+		notIncludeDomainUS.add("doc-us.sapanywhere.com");
+		notIncludeDomainUS.add("doc-us.sapanywhere.sap.corp");
+		notIncludeDomainUS.add("dev-us.sapanywhere.com");
+		notIncludeDomainUS.add("dev-us.sapanywhere.sap.corp");
+		notIncludeDomainUS.add("api-us.sapanywhere.com");
+		notIncludeDomainUS.add("api-us.sapanywhere.sap.corp");
+		notIncludeDomainUS.add("eap-us-mp.sapanywhere.com");
+		notIncludeDomainUS.add("eap-us-mp.sapanywhere.sap.corp");
+		notIncludeDomainUS.add("poseap-us.sapanywhere.com");
+		notIncludeDomainUS.add("poseap-us.sapanywhere.sap.corp");
+		notIncludeDomainUS.add("eap-payment-us.sapanywhere.com");
+		notIncludeDomainUS.add("eap-payment-us.sapanywhere.sap.corp");
+		notIncludeDomainUS.add("eap-occ-us.sapanywhere.com");
+		notIncludeDomainUS.add("eap-occ-us.sapanywhere.sap.corp");
+		notIncludeDomainUS.add("eap-us.sapanywhere.com");
+		notIncludeDomainUS.add("eap-us.sapanywhere.sap.corp");
+		notIncludeDomainUS.add("eap-idp-us.sapanywhere.com");
+		notIncludeDomainUS.add("eap-idp-us.sapanywhere.sap.corp");
 
 	}
 
 
-	public void searchViews(int dayBefore) throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException{
-		int totalCount = 0;
-		int from = 0;
-		int size = 1000;
-
-		totalCount = queryAndSaveToMongoDB(from, size, dayBefore);
-
-		while(totalCount > (from + size)){
-			from += size;
-			queryAndSaveToMongoDB(from, size, dayBefore);
-		}
-
-		System.out.println("Finish import " + totalCount + " eshopAccess." );
-
-	}
-
-	public void deleteMongoDBRecord(int dayBefore){
-		dayBefore = -dayBefore;
-
-		Calendar calendar = Calendar.getInstance();
-		calendar.add(Calendar.DAY_OF_YEAR, dayBefore);
-		calendar.set(Calendar.HOUR_OF_DAY, 0);
-		calendar.set(Calendar.MINUTE, 0);
-		calendar.set(Calendar.SECOND, 0);
-		calendar.set(Calendar.MILLISECOND, 0);
-		Date dateBegin = calendar.getTime();
-		System.out.println(dateBegin);
-
-		calendar.add(calendar.DAY_OF_YEAR, 1);
-		Date dateEnd = calendar.getTime();
-		System.out.println(dateEnd);
-
-		WriteResult result = mongoDBClient.
-				getMongoOperation().
-				getCollection("EshopAccess").remove(
-					new BasicDBObject("createTime",new BasicDBObject("$gte", dateBegin).append("$lt", dateEnd)));
-
-	}
-
-
-	private int queryAndSaveToMongoDB(int from, int size, int dayBefore) throws IOException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
+	public void searchViews(int dayBefore, String landscape) throws IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException{
 		dayBefore = -dayBefore;
 
 		Date createTime = null;
@@ -133,7 +111,149 @@ public class SearchService {
 		System.out.println(calendar.getTime());
 		String yesterdayEnd = String.valueOf(calendar.getTimeInMillis());
 
-		String queryString = "landscape:\\\"cn\\\"";
+		String queryString = "landscape:\\\"" + landscape + "\\\"";
+
+		List<String> notIncludeDomain = null;
+		if (landscape.equals("cn")){
+			notIncludeDomain = notIncludeDomainCN;
+		} else if (landscape.equals("us")) {
+			notIncludeDomain = notIncludeDomainUS;
+		}
+
+		for(String notDomain : notIncludeDomain){
+			queryString += " AND ";
+			queryString += "NOT http_host:\\\"" + notDomain +"\\\"";
+		}
+
+		String query = elasticSearchManager.buildEshopQueryScollString("desc", queryString, yesterdayBegin,yesterdayEnd);
+		System.out.println(query);
+
+		int queryWindow = 5000;
+		int currentIndex = 0;
+		int totalCount = 0;
+
+		Search search = new Search.Builder(query)
+				.setParameter(Parameters.SIZE, queryWindow)
+				.setParameter(Parameters.SCROLL, "20m")
+				.build();
+
+		SearchResult result = elasticSearchManager.getJestClient().execute(search);
+
+		if (!result.isSucceeded()){
+			throw new BusinessException("query elastic search failed:" + result.getErrorMessage());
+		}else{
+			System.out.println("query success");
+			List<Access> articles = result.getSourceAsObjectList(Access.class);
+			for (Access access : articles) {
+				EshopAccess eshopAccess = new EshopAccess(access);
+				eshopAccess.setCreateTime(createTime);
+				System.out.println(eshopAccess.toString());
+				mongoDBClient.getMongoOperation().save(eshopAccess);
+				currentIndex++;
+			}
+
+			totalCount = result.getTotal();
+		}
+
+		String scrollId = result.getJsonObject().get("_scroll_id").getAsString();
+		while (totalCount > currentIndex){
+			SearchScroll scroll = new SearchScroll.Builder(scrollId, "20m")
+					.setParameter(Parameters.SIZE, queryWindow).build();
+			JestResult scollResult = elasticSearchManager.getJestClient().execute(scroll);
+
+			if (!result.isSucceeded()){
+				throw new BusinessException("query elastic search failed:" + result.getErrorMessage());
+			}else {
+				System.out.println("query success");
+				List<Access> articles = scollResult.getSourceAsObjectList(Access.class);
+				for (Access access : articles) {
+					EshopAccess eshopAccess = new EshopAccess(access);
+					eshopAccess.setCreateTime(createTime);
+					System.out.println(eshopAccess.toString());
+					mongoDBClient.getMongoOperation().save(eshopAccess);
+					currentIndex++;
+				}
+			}
+
+			scrollId = scollResult.getJsonObject().getAsJsonPrimitive("_scroll_id").getAsString();
+		}
+
+
+
+
+
+
+
+		/*
+
+		int totalCount = 0;
+		int from = 0;
+		int size = 1000;
+
+		totalCount = queryAndSaveToMongoDB(from, size, dayBefore, landscape);
+
+		while(totalCount > (from + size)){
+			from += size;
+			queryAndSaveToMongoDB(from, size, dayBefore, landscape);
+		}*/
+
+		System.out.println("Finish import " + totalCount + " eshopAccess." );
+
+	}
+
+	public void deleteMongoDBRecord(int dayBefore, String landscape){
+		dayBefore = -dayBefore;
+
+		Calendar calendar = Calendar.getInstance();
+		calendar.add(Calendar.DAY_OF_YEAR, dayBefore);
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		Date dateBegin = calendar.getTime();
+		System.out.println(dateBegin);
+
+		calendar.add(calendar.DAY_OF_YEAR, 1);
+		Date dateEnd = calendar.getTime();
+		System.out.println(dateEnd);
+
+		WriteResult result = mongoDBClient.
+				getMongoOperation().
+				getCollection("EshopAccess").remove(
+					new BasicDBObject("createTime",new BasicDBObject("$gte", dateBegin).append("$lt", dateEnd)).
+							append("landscape", landscape));
+		System.out.println(result);
+	}
+
+
+	private int queryAndSaveToMongoDB(int from, int size, int dayBefore, String landscape) throws IOException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
+		dayBefore = -dayBefore;
+
+		Date createTime = null;
+
+		Calendar calendar = Calendar.getInstance();
+		calendar.add(Calendar.DAY_OF_YEAR, dayBefore);
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		createTime = calendar.getTime();
+		System.out.println(calendar.getTime());
+		String yesterdayBegin = String.valueOf(calendar.getTimeInMillis());
+
+		calendar.add(calendar.DAY_OF_YEAR, 1);
+		System.out.println(calendar.getTime());
+		String yesterdayEnd = String.valueOf(calendar.getTimeInMillis());
+
+		String queryString = "landscape:\\\"" + landscape + "\\\"";
+
+		List<String> notIncludeDomain = null;
+		if (landscape.equals("cn")){
+			notIncludeDomain = notIncludeDomainCN;
+		} else if (landscape.equals("us")) {
+			notIncludeDomain = notIncludeDomainUS;
+		}
+
 		for(String notDomain : notIncludeDomain){
 			queryString += " AND ";
 			queryString += "NOT http_host:\\\"" + notDomain +"\\\"";
@@ -155,9 +275,9 @@ public class SearchService {
 			System.out.println("query success");
 			List<Access> articles = result.getSourceAsObjectList(Access.class);
 			for (Access access : articles) {
-				System.out.println(access.toString());
 				EshopAccess eshopAccess = new EshopAccess(access);
 				eshopAccess.setCreateTime(createTime);
+				System.out.println(eshopAccess.toString());
 				mongoDBClient.getMongoOperation().save(eshopAccess);
 			}
 
@@ -165,33 +285,4 @@ public class SearchService {
 		}
 	}
 
-
-	public void generateMeta() {
-		// delete all meta first
-		mongoDBClient.
-				getMongoOperation().
-				getCollection("EshopMeta").remove(
-				new BasicDBObject("",""));
-
-		// rebuild EshopMeta meta
-		AggregationOutput outputPath = mongoDBClient.getMongoOperation().getCollection("EshopAccess").aggregate(asList(
-				new BasicDBObject("$match",
-						new BasicDBObject("requestType","doc")),
-				new BasicDBObject("$group",
-						new BasicDBObject("_id", new BasicDBObject("httpHost", "$httpHost").
-								append("contentPath", "$contentPath")))));
-
-		for (final DBObject result: outputPath.results()){
-			System.out.println(result);
-			BasicDBObject meta = (BasicDBObject) result.get("_id");
-			if (meta != null) {
-				EshopMeta eshopMeta = new EshopMeta();
-				eshopMeta.setContentPath((String)meta.get("contentPath"));
-				eshopMeta.setDomain((String)meta.get("httpHost"));
-				mongoDBClient.getMongoOperation().save(eshopMeta);
-			}
-		}
-
-
-	}
 }
