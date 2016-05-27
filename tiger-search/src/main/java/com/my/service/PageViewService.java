@@ -24,7 +24,7 @@ public class PageViewService {
     @Autowired
     private MongoDBClient mongoDBClient;
 
-    public DomainViewResult getDomainView(int dayBefore){
+    public DomainViewResult getDomainView(int dayBefore, int limit){
         dayBefore = -dayBefore;
 
         Date dateBegin = Util.getBeginDateForDay(dayBefore);
@@ -43,14 +43,15 @@ public class PageViewService {
                         new BasicDBObject("_id","$httpHost").
                         append("count",
                                 new BasicDBObject("$sum", 1))),
-                new BasicDBObject("$sort", new BasicDBObject("count", -1))));
+                new BasicDBObject("$sort", new BasicDBObject("count", -1)),
+                new BasicDBObject("$limit", limit)));
 
         DomainViewResult domainViewResult = new DomainViewResult();
         for (final DBObject result: outputs.results()){
             System.out.println(result);
             String url = (String) result.get("_id");
             if (url != null) {
-                domainViewResult.getDomainViews().add(new DomainView((String) result.get("_id"), String.valueOf(result.get("count"))));
+                domainViewResult.getDomainViews().add(new DomainView((String) result.get("_id"), String.valueOf(result.get("count")), ""));
             }
         }
 
@@ -58,7 +59,7 @@ public class PageViewService {
     }
 
 
-    public PageViewResult getPageView(int dayBefore) {
+    public PageViewResult getPageView(int dayBefore, int limit) {
         dayBefore = -dayBefore;
 
         Date dateBegin = Util.getBeginDateForDay(dayBefore);
@@ -79,7 +80,8 @@ public class PageViewService {
                         ).
                          append("count",
                                  new BasicDBObject("$sum", 1))),
-                new BasicDBObject("$sort", new BasicDBObject("count", -1))));
+                new BasicDBObject("$sort", new BasicDBObject("count", -1)),
+                new BasicDBObject("$limit", limit)));
 
         PageViewResult pageViewResult = new PageViewResult();
         for (final DBObject result: outputs.results()){
@@ -87,11 +89,102 @@ public class PageViewService {
             BasicDBObject keys =  (BasicDBObject)result.get("_id");
 
             if (keys != null) {
-                pageViewResult.getPageViews().add(new PageView((String) keys.get("requestUri"), String.valueOf(result.get("count"))));
+                pageViewResult.getPageViews().add(new PageView((String) keys.get("requestUri"), String.valueOf(result.get("count")), ""));
             }
         }
 
         return pageViewResult;
     }
 
+    public DomainViewResult getPageViewChart(Long start, Long end, String domain, String landscape) {
+        String aggregateType = "day";
+        Date startDate = null;
+        Date endDate = null;
+        Calendar cal = Calendar.getInstance();
+        if (start != null) {
+            cal.setTimeInMillis(start.longValue());
+            startDate = cal.getTime();
+        }
+        if (end != null) {
+            cal.setTimeInMillis(end.longValue());
+            endDate = cal.getTime();
+        }
+
+        BasicDBObject match;
+
+        BasicDBObject matchParams = new BasicDBObject("landscape", "us");
+        if (domain != null) {
+            matchParams = matchParams.append("httpHost" , domain);
+        }
+
+        /*if (landscape != null){
+            matchParams = matchParams.append("landscape", landscape);
+        }*/
+
+        BasicDBObject timeParams;
+        if (startDate != null){
+            timeParams = new BasicDBObject("$gte", startDate);
+        } else {
+            Calendar minCal = Calendar.getInstance();
+            minCal.set(Calendar.YEAR, 1970);
+            timeParams = new BasicDBObject("$gte", minCal.getTime());
+        }
+
+        if (endDate != null){
+            timeParams = timeParams.append("$lt", endDate);
+        }
+
+        matchParams = matchParams.append("time", timeParams);
+
+        match = new BasicDBObject("$match", matchParams);
+
+        BasicDBObject group = null;
+        if (aggregateType.equals("day")){
+            group = new BasicDBObject("$group",
+                    new BasicDBObject("_id",
+                            new BasicDBObject("day",
+                                    new BasicDBObject("$dayOfYear","$time")))
+                            .append("count", new BasicDBObject("$sum", "$count")));
+        }
+
+        BasicDBObject sort = null;
+        if (aggregateType.equals("day")){
+            sort = new BasicDBObject("$sort", new BasicDBObject("_id.day", 1));
+        }else {
+            sort = new BasicDBObject("$sort", new BasicDBObject("time", 1));
+        }
+
+        List<BasicDBObject> pipeline = new ArrayList<BasicDBObject>();
+        pipeline.add(match);
+        if (group != null){
+            pipeline.add(group);
+        }
+        pipeline.add(sort);
+        System.out.println(pipeline);
+        AggregationOutput outputs = mongoDBClient.getMongoOperation().getCollection("EshopStatusDaily").aggregate(pipeline);
+
+        DomainViewResult domainViewResult = new DomainViewResult();
+        for (final DBObject result: outputs.results()){
+            System.out.println(result);
+
+            if (aggregateType.equals("day")){
+                String day = ((BasicDBObject)result.get("_id")).get("day").toString();
+
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(Calendar.MONTH, 0);
+                calendar.set(Calendar.DAY_OF_MONTH, 0);
+                calendar.set(Calendar.HOUR_OF_DAY, 0);
+                calendar.set(Calendar.MINUTE, 0);
+                calendar.set(Calendar.SECOND, 0);
+                calendar.set(Calendar.MILLISECOND, 0);
+                calendar.add(Calendar.DAY_OF_YEAR, Integer.valueOf(day));
+                Date date = calendar.getTime();
+
+                domainViewResult.getDomainViews().add(new DomainView(domain, String.valueOf(result.get("count")), date.toString()));
+            }
+
+        }
+
+        return domainViewResult;
+    }
 }

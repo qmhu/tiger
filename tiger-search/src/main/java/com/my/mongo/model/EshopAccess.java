@@ -6,6 +6,7 @@ import org.joda.time.format.ISODateTimeFormat;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -18,7 +19,9 @@ import static java.awt.SystemColor.text;
  * Created by I311862 on 2016/3/20.
  */
 @Document(collection = "EshopAccess")
-public class EshopAccess {
+public class EshopAccess implements Serializable {
+
+    private static final long serialVersionUID = -5562313177795253557L;
 
     @Id
     private String id;
@@ -114,9 +117,9 @@ public class EshopAccess {
             requestType = "img";
         } else if (requestUri.endsWith(".woff") || requestUri.contains(".woff?")){
             requestType = "font";
-        } else if (requestUri.contains(".loc?")){
+        } else if (requestUri.contains(".loc")){
             requestType = "loc";
-        }else if (requestUri.contains("options.json?")){
+        }else if (requestUri.contains("options.json")){
             requestType = "setting";
         } else{
             requestType = "doc";

@@ -8,14 +8,16 @@ import java.io.Serializable;
 public class DomainView implements Serializable {
 
     private static final long serialVersionUID = -2568613272795333322L;
+    private String time;
 
     private String url;
 
     private String count;
 
-    public DomainView(String url, String count){
+    public DomainView(String url, String count, String time){
         this.url = url;
         this.count = count;
+        this.time = time;
     }
 
     public String getUrl() {
@@ -32,5 +34,13 @@ public class DomainView implements Serializable {
 
     public void setCount(String count) {
         this.count = count;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
     }
 }

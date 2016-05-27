@@ -76,9 +76,7 @@ public class EshopMetaService {
                 new BasicDBObject("",""));
 
         // rebuild EshopMeta meta
-        AggregationOutput outputPath = mongoDBClient.getMongoOperation().getCollection("EshopAccess").aggregate(asList(
-                new BasicDBObject("$match",
-                        new BasicDBObject("requestType","doc")),
+        AggregationOutput outputPath = mongoDBClient.getMongoOperation().getCollection("EshopStatusDaily").aggregate(asList(
                 new BasicDBObject("$group",
                         new BasicDBObject("_id", new BasicDBObject("httpHost", "$httpHost").
                                 append("contentPath", "$contentPath").append("landscape", "$landscape")))));

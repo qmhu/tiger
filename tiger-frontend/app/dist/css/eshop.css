@@ -1,0 +1,9 @@
+table.dataTable thead tr th {
+    word-wrap: break-word;
+    word-break: break-all;
+}
+
+table.dataTable tbody tr td{
+    word-wrap: break-word;
+    word-break: break-all;
+}

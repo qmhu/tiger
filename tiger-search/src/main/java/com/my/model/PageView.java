@@ -11,6 +11,8 @@ public class PageView implements Serializable {
 
     private String url;
 
+    private String time;
+
     public String getCount() {
         return count;
     }
@@ -29,10 +31,17 @@ public class PageView implements Serializable {
 
     private String count;
 
-    public PageView(String url, String count){
+    public PageView(String url, String count, String time){
         this.url = url;
         this.count = count;
+        this.time = time;
     }
 
+    public String getTime() {
+        return time;
+    }
 
+    public void setTime(String time) {
+        this.time = time;
+    }
 }

@@ -13,6 +13,10 @@ public class ResponseTime implements Serializable {
 
     private String time;
 
+    public ResponseTime(){
+
+    }
+
     public ResponseTime(String date, String time){
         this.date = date;
         this.time = time;

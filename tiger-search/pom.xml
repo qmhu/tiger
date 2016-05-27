@@ -13,7 +13,7 @@
         <org.springframework-version>4.1.2.RELEASE</org.springframework-version>
 		<org.aspectj-version>1.7.4</org.aspectj-version>
 		<org.slf4j-version>1.7.5</org.slf4j-version>
-        <jackson.databind-version>2.2.3</jackson.databind-version>
+        <jackson.databind-version>2.7.0</jackson.databind-version>
 	</properties>
 	<dependencies>
 		<!-- Jackson -->
@@ -90,6 +90,11 @@
 		  <groupId>io.searchbox</groupId>
 		  <artifactId>jest</artifactId>
 		  <version>2.0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.elasticsearch</groupId>
+			<artifactId>elasticsearch</artifactId>
+			<version>2.3.2</version>
 		</dependency>
 	    
 	    

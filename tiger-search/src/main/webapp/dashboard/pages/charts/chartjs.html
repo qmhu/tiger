@@ -8,10 +8,10 @@
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <!-- Bootstrap 3.3.5 -->
   <link rel="stylesheet" href="../../bootstrap/css/bootstrap.min.css">
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <!-- Font Awesome -->
+  <link rel="stylesheet" href="../../plugins/Font-Awesome-4.4.0/css/font-awesome.min.css">
   <!-- Ionicons -->
-  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  <link rel="stylesheet" href="../../plugins/ionicons-2.0.1/css/ionicons.min.css">
    <!-- iCheck for checkboxes and radio inputs -->
   <link rel="stylesheet" href="../../plugins/iCheck/all.css">
   <!-- Select2 -->
@@ -188,7 +188,42 @@
       </div>
     </nav>
   </header>
-
+<!-- Left side column. contains the logo and sidebar -->
+  <aside class="main-sidebar">
+    <!-- sidebar: style can be found in sidebar.less -->
+    <section class="sidebar">
+      <!-- sidebar menu: : style can be found in sidebar.less -->
+      <ul class="sidebar-menu">
+        <li class="header">MAIN NAVIGATION</li>
+		<li>
+          <a href="status.html">
+            <i class="fa fa-dashboard"></i> <span>Eshop Access Status</span>
+          </a>
+        </li>
+		<li>
+          <a href="occstatus.html">
+            <i class="fa fa-th"></i> <span>Eshop Service Access Status</span>
+          </a>
+        </li>
+		<li>
+          <a href="chartjs.html">
+            <i class="fa fa-table"></i> <span>Eshop Response Time</span>
+          </a>
+        </li>
+		<li>
+          <a href="occresponse.html">
+            <i class="fa fa-table"></i> <span>Eshop Service Response Time</span>
+          </a>
+        </li>
+		<li>
+          <a href="data.html">
+            <i class="fa fa-edit"></i> <span>Eshop Page View</span>
+          </a>
+        </li>
+      </ul>
+    </section>
+    <!-- /.sidebar -->
+  </aside>
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
@@ -225,7 +260,7 @@
               <div class="form-group">
                 <label>Domain</label>
                 <select id="domain_select" class="form-control select2" style="width: 100%;">
-					<option selected="selected">All</option>
+					<option defaultValue>All</option>
                 </select>
               </div>
               <!-- /.form-group -->
