@@ -63,6 +63,7 @@ public class EshopAccessService {
 		notIncludeDomainCN.add("doc.sapanywhere.cn");
 		notIncludeDomainCN.add("posmy.sapanywhere.cn");
 		notIncludeDomainCN.add("eap-idp-cn.sapanywhere.cn");
+		notIncludeDomainCN.add("stock.sapanywhere.sap.corp:443");
 
 		notIncludeDomainUS = new ArrayList<String>();
 		notIncludeDomainUS.add("bss-us.sapanywhere.com");
@@ -95,6 +96,9 @@ public class EshopAccessService {
 		notIncludeDomainUS.add("eap-idp-us.sapanywhere.sap.corp");
 		notIncludeDomainUS.add("app1-us.sapanywhere.com");
 		notIncludeDomainUS.add("accounts-us.sapanywhere.com");
+		notIncludeDomainUS.add("my-us.sapanywhere.com");
+		notIncludeDomainUS.add("mp-us.sapanywhere.com");
+		notIncludeDomainUS.add("stock.sapanywhere.sap.corp:443");
 
 	}
 

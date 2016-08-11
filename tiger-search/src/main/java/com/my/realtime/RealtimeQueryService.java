@@ -85,6 +85,9 @@ public class RealtimeQueryService {
         notIncludeDomain.add("eap-idp-us.sapanywhere.sap.corp");
         notIncludeDomain.add("app1-us.sapanywhere.com");
         notIncludeDomain.add("accounts-us.sapanywhere.com");
+        notIncludeDomain.add("my-us.sapanywhere.com");
+        notIncludeDomain.add("mp-us.sapanywhere.com");
+        notIncludeDomain.add("stock.sapanywhere.sap.corp:443");
     }
 
     public ResponseTimeResult realtimeQueryService(String landscape, String[] domainList, String requestType, Long start, Long end, String interval) throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException {

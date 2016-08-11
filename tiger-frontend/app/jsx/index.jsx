@@ -5,7 +5,7 @@ import ReactDOM from 'react-dom'
 import { Link, Router, Route,IndexRoute  } from 'react-router'
 
 import App from './App';
-import RealtimePage from './page/RealtimePage';
+import RealtimePage from './page/RealtimePage1';
 import EshopStatusPage from './page/EshopStatusPage';
 import EshopResponsePage from './page/EshopResponsePage';
 import OccResponsePage from './page/OccResponsePage';
